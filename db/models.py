@@ -1,45 +1,29 @@
-from sqlalchemy import Column, String, Boolean, ForeignKey, Integer
-from sqlalchemy.orm import relationship
 from .database import Base
+from sqlalchemy import Column, String, Integer, Boolean, ForeignKey
+from sqlalchemy.orm import relationship
 
-class StudentEntity(Base):
-    __tablename__ = "students"
+# This is a simplification. The actual schema and queries might differ.
+# In the original code, "event", "ticket", "booker" tables exist.
+# We'll define them similarly.
 
+class BookerEntity(Base):
+    __tablename__ = "booker"
     id = Column(Integer, primary_key=True, autoincrement=True)
-    name = Column(String(255), nullable=False)
-    enrollments = relationship("EnrollmentEntity", back_populates="student", cascade="all, delete-orphan")
+    username = Column(String(255), nullable=False)
 
-    def addEnrollment(self, enrollment):
-        self.enrollments.append(enrollment)
-        enrollment.student = self
-
-    def removeEnrollment(self, enrollment):
-        self.enrollments.remove(enrollment)
-        enrollment.student = None
-
-class CourseEntity(Base):
-    __tablename__ = "courses"
-
+class EventEntity(Base):
+    __tablename__ = "event"
     id = Column(Integer, primary_key=True, autoincrement=True)
-    title = Column(String(255), nullable=False)
-    is_advanced = Column(Boolean, nullable=False)
-    topic = Column(String(255), nullable=False)
-    enrollments = relationship("EnrollmentEntity", back_populates="course", cascade="all, delete-orphan")
+    tickets_per_booker = Column(Integer, nullable=False)
 
-    def addEnrollment(self, enrollment):
-        self.enrollments.append(enrollment)
-        enrollment.course = self
+    # relationship to tickets is defined inbound TicketEntity
+    tickets = relationship("TicketEntity", back_populates="event")
 
-    def removeEnrollment(self, enrollment):
-        self.enrollments.remove(enrollment)
-        enrollment.course = None
-
-class EnrollmentEntity(Base):
-    __tablename__ = "enrollments"
-
+class TicketEntity(Base):
+    __tablename__ = "ticket"
     id = Column(Integer, primary_key=True, autoincrement=True)
-    student_id = Column(Integer, ForeignKey("students.id"))
-    course_id = Column(Integer, ForeignKey("courses.id"))
+    event_id = Column(Integer, ForeignKey("event.id"))
+    type = Column(String(50), nullable=False)
+    booker_id = Column(Integer, ForeignKey("booker.id"), nullable=True)
 
-    student = relationship("StudentEntity", back_populates="enrollments")
-    course = relationship("CourseEntity", back_populates="enrollments")
+    event = relationship("EventEntity", back_populates="tickets")

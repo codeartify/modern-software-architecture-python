@@ -1,9 +1,8 @@
 from sqlalchemy import create_engine
-from sqlalchemy.orm import sessionmaker, declarative_base
+from sqlalchemy.orm import declarative_base, sessionmaker
 
-# Using an in-memory SQLite DB for demonstration.
-DATABASE_URL = "sqlite:///./test.db"  # This creates a persistent file
+DATABASE_URL = "sqlite:///./test.db"  # Creates a local SQLite file named test.db
 
 engine = create_engine(DATABASE_URL, echo=False)
-SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
+SessionLocal = sessionmaker(bind=engine, autoflush=False, autocommit=False)
 Base = declarative_base()
